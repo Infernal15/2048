@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using System.Xml;
 
 namespace WpfApp2
 {
@@ -26,6 +28,8 @@ namespace WpfApp2
         Button[,] buttons;
         int score = 0;
         int high_score = 0;
+        DispatcherTimer timer;
+        public bool visib = true;
 
         private void Border()
         {
@@ -66,7 +70,7 @@ namespace WpfApp2
 
             while (buttons[i, j] != null)
             {
-                if (check > 1000)
+                if (check > 100000)
                 {
                     for (int _i = 0; _i < 4; _i++)
                         for (int _j = 0; _j < 4; _j++)
@@ -115,9 +119,79 @@ namespace WpfApp2
                 return false;
         }
 
+        private void Init()
+        {
+            XmlTextReader reader = null;
+            try
+            {
+                reader = new XmlTextReader("users.xml");
+                reader.WhitespaceHandling = WhitespaceHandling.None;
+                string[] tmp = new string[3];
+                int i = 0;
+                while (reader.Read())
+                {
+                    if (reader.NodeType == XmlNodeType.Text)
+                    {
+                        tmp[i] = reader.Value;
+                        i++;
+                    }
+                }
+                Console.WriteLine($"{tmp[0]}, {tmp[1]}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            finally
+            {
+                if (reader != null)
+                    reader.Close();
+            }
+
+        }
+
+        private void Main_visibilyti(object sender, EventArgs e)
+        {
+
+        }
+
         public MainWindow()
         {
+            string[] tmp = new string[3];
+            int i = 0;
+            if (File.Exists("set.ini"))
+                using (StreamReader read = new StreamReader("set.ini"))
+                {
+                    while (!read.EndOfStream)
+                    {
+                        tmp[i] = read.ReadLine();
+                        i++;
+                    }
+                    if (tmp[0] != "true")
+                    {
+                        Window1 wind = new Window1();
+                        wind.Show();
+                        this.Owner = wind;
+                        this.Hide();
+                        timer = new DispatcherTimer();
+                        timer.Tick += new EventHandler(Main_visibilyti);
+                    }
+                    else if (tmp[0] == "true")
+                    {
+                        high_score = Convert.ToInt32(tmp[2]);
+                    }
+
+                }
+            else
+            {
+                Window1 wind = new Window1();
+                wind.Show();
+                this.Owner = wind;
+                this.Hide();
+            }
+            
             InitializeComponent();
+            
             score_box.Text = $"Score\n{score}";
             high_score_box.Text = $"High Score\n{high_score}";
             Border();
@@ -382,6 +456,29 @@ namespace WpfApp2
             Border();
             Button();
             score_box.Text = $"Score\n{score}";
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            string[] tmp = new string[3];
+            int i = 0;
+            using (StreamReader read = new StreamReader("set.ini"))
+            {
+                while (!read.EndOfStream)
+                {
+                    tmp[i] = read.ReadLine(); ;
+                    i++;
+                }
+            }
+            if (Convert.ToInt32(tmp[2]) < score)
+            {
+                using (StreamWriter writer = new StreamWriter($"set.ini", false, Encoding.UTF8))
+                {
+                    writer.WriteLine(tmp[0]);
+                    writer.WriteLine(tmp[1]);
+                    writer.WriteLine($"{score}");
+                }
+            }
         }
     }
 }
