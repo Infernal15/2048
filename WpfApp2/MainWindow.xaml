@@ -8,14 +8,14 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="386" Width="298" WindowStartupLocation="CenterScreen" ResizeMode="NoResize" KeyDown="Window_KeyDown" Background="#FFD6B250">
     <Grid Background="#FFFFF3DA" VerticalAlignment="Top" Margin="0" Height="356" KeyDown="Window_KeyDown">
-        <TextBox HorizontalAlignment="Left" Height="23" Margin="20,19,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="115" TextAlignment="Center">
+        <TextBox x:Name="score_box" HorizontalAlignment="Left" Height="41" Margin="20,19,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="115" TextAlignment="Center">
             <TextBox.Resources>
                 <Style TargetType="{x:Type Border}">
                     <Setter Property="CornerRadius" Value="5"/>
                 </Style>
             </TextBox.Resources>
         </TextBox>
-        <TextBox HorizontalAlignment="Left" Height="23" Margin="150,19,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120" RenderTransformOrigin="0.267,0.652" TextAlignment="Center">
+        <TextBox x:Name="high_score_box" HorizontalAlignment="Left" Height="41" Margin="150,19,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120" RenderTransformOrigin="0.267,0.652" TextAlignment="Center">
             <TextBox.Resources>
                 <Style TargetType="{x:Type Border}">
                     <Setter Property="CornerRadius" Value="5"/>

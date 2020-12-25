@@ -24,6 +24,8 @@ namespace WpfApp2
     {
         Dictionary<string, KeyValuePair<string, double>> work_list;
         Button[,] buttons;
+        int score = 0;
+        int high_score = 0;
 
         private void Border()
         {
@@ -60,23 +62,64 @@ namespace WpfApp2
             int j = rand.Next(0, 3);
             int tmp = rand.Next(100);
 
+            int check = 0;
+
             while (buttons[i, j] != null)
             {
+                if (check > 1000)
+                {
+                    for (int _i = 0; _i < 4; _i++)
+                        for (int _j = 0; _j < 4; _j++)
+                        {
+                            if (buttons[_i, _j] == null)
+                            {
+                                i = _i;
+                                j = _j;
+                                break;
+                            }
+                        }
+                    break;
+                }
+
                 i = rand.Next(0, 3);
                 j = rand.Next(0, 3);
+                check++;
             }
+           
 
             buttons[i, j] = new Button();
-            buttons[i, j].Name = $"Button{i + j}";
             if (tmp >= 90)
                 buttons[i, j].Content = "4";
             else
                 buttons[i, j].Content = "2";
         }
 
+        private bool Check()
+        {
+            int k = 0;
+            for (int i = 1; i < 3; i++)
+                for (int j = 1; j < 3; j++)
+                {
+                    if (buttons[i, j].Content.ToString() == buttons[i - 1, j].Content.ToString())
+                        k++;
+                    if (buttons[i, j].Content.ToString() == buttons[i + 1, j].Content.ToString())
+                        k++;
+                    if (buttons[i, j].Content.ToString() == buttons[i, j + 1].Content.ToString())
+                        k++;
+                    if (buttons[i, j].Content.ToString() == buttons[i, j - 1].Content.ToString())
+                        k++;
+                }
+            if (k > 0)
+                return true;
+            else 
+                return false;
+        }
+
         public MainWindow()
         {
             InitializeComponent();
+            score_box.Text = $"Score\n{score}";
+            high_score_box.Text = $"High Score\n{high_score}";
             Border();
             buttons = new Button[4, 4];
             Create();
@@ -85,29 +128,65 @@ namespace WpfApp2
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
+            bool[,] key = new bool[4, 4];
+            for (int i = 0; i < 4; i++)
+                for (int j = 0; j < 4; j++)
+                    key[i, j] = true;
+
             if (e.Key == Key.Right)
             {
                 bool tmp = true;
                 while (tmp)
                 {
                     int k = 0;
-                    for(int i = 0; i < 4; i++)
-                        for(int j = 0; j < 3; j++)
+                    for (int i = 0; i < 4; i++)
+                        for (int j = 0; j < 3; j++)
                         {
                             if (buttons[i, j] != null && buttons[i, j + 1] == null)
                             {
                                 buttons[i, j + 1] = buttons[i, j];
                                 buttons[i, j] = null;
+                                k++;
                             }
-                            else if (buttons[i, j] != null && buttons[i, j + 1] != null)
-                                if (buttons[i, j].Content == buttons[i, j + 1].Content)
+                        }
+                    if (k == 0)
+                        tmp = false;
+                }
+                tmp = true;
+                while (tmp)
+                {
+                    int k = 0;
+                    for (int i = 0; i < 4; i++)
+                        for (int j = 3; j > 0; j--)
+                        {
+                            if ((buttons[i, j - 1] != null && buttons[i, j] != null) && key[i, j - 1] == true && key[i, j] == true)
+                                if (buttons[i, j - 1].Content.ToString() == buttons[i, j].Content.ToString())
                                 {
-                                    buttons[i, j].Content = Convert.ToString(Convert.ToInt32(buttons[i, j].Content) * 2);
-                                    buttons[i, j + 1] = null;
+                                    buttons[i, j].Content = Convert.ToString(Convert.ToInt32(buttons[i, j].Content.ToString()) * 2);
+                                    score += Convert.ToInt32(buttons[i, j].Content);
+                                    buttons[i, j - 1] = null;
+                                    key[i, j] = false;
                                     k++;
                                 }
                         }
 
+                    if (k == 0)
+                        tmp = false;
+                }
+                tmp = true;
+                while (tmp)
+                {
+                    int k = 0;
+                    for (int i = 0; i < 4; i++)
+                        for (int j = 0; j < 3; j++)
+                        {
+                            if (buttons[i, j] != null && buttons[i, j + 1] == null)
+                            {
+                                buttons[i, j + 1] = buttons[i, j];
+                                buttons[i, j] = null;
+                                k++;
+                            }
+                        }
                     if (k == 0)
                         tmp = false;
                 }
@@ -125,16 +204,47 @@ namespace WpfApp2
                             {
                                 buttons[i, j - 1] = buttons[i, j];
                                 buttons[i, j] = null;
+                                k++;
                             }
-                            else if (buttons[i, j] != null && buttons[i, j + 1] != null)
-                                if (buttons[i, j].Content == buttons[i, j - 1].Content)
+                        }
+                    if (k == 0)
+                        tmp = false;
+                }
+                tmp = true;
+                while (tmp)
+                {
+                    int k = 0;
+                    for (int i = 0; i < 4; i++)
+                        for (int j = 0; j < 3; j++)
+                        {
+                            if ((buttons[i, j + 1] != null && buttons[i, j] != null) && key[i, j + 1] == true && key[i, j] == true)
+                                if (buttons[i, j + 1].Content.ToString() == buttons[i, j].Content.ToString())
                                 {
-                                    buttons[i, j].Content = Convert.ToString(Convert.ToInt32(buttons[i, j].Content) * 2);
-                                    buttons[i, j - 1] = null;
+                                    buttons[i, j].Content = Convert.ToString(Convert.ToInt32(buttons[i, j].Content.ToString()) * 2);
+                                    score += Convert.ToInt32(buttons[i, j].Content);
+                                    buttons[i, j + 1] = null;
+                                    key[i, j] = false;
                                     k++;
                                 }
                         }
 
+                    if (k == 0)
+                        tmp = false;
+                }
+                tmp = true;
+                while (tmp)
+                {
+                    int k = 0;
+                    for (int i = 0; i < 4; i++)
+                        for (int j = 3; j > 0; j--)
+                        {
+                            if (buttons[i, j] != null && buttons[i, j - 1] == null)
+                            {
+                                buttons[i, j - 1] = buttons[i, j];
+                                buttons[i, j] = null;
+                                k++;
+                            }
+                        }
                     if (k == 0)
                         tmp = false;
                 }
@@ -152,16 +262,47 @@ namespace WpfApp2
                             {
                                 buttons[i + 1, j] = buttons[i, j];
                                 buttons[i, j] = null;
+                                k++;
                             }
-                            else if (buttons[i, j] != null && buttons[i + 1, j] != null)
-                                if (buttons[i, j].Content == buttons[i + 1, j].Content)
+                        }
+                    if (k == 0)
+                        tmp = false;
+                }
+                tmp = true;
+                while (tmp)
+                {
+                    int k = 0;
+                    for (int i = 3; i > 0; i--)
+                        for (int j = 0; j < 4; j++)
+                        {
+                            if ((buttons[i, j] != null && buttons[i - 1, j] != null) && key[i, j] == true && key[i - 1, j] == true)
+                                if (buttons[i, j].Content.ToString() == buttons[i - 1, j].Content.ToString())
                                 {
-                                    buttons[i, j].Content = Convert.ToString(Convert.ToInt32(buttons[i, j].Content) * 2);
-                                    buttons[i + 1, j] = null;
+                                    buttons[i - 1, j].Content = Convert.ToString(Convert.ToInt32(buttons[i, j].Content.ToString()) * 2);
+                                    score += Convert.ToInt32(buttons[i - 1, j].Content);
+                                    buttons[i, j] = null;
+                                    key[i - 1, j] = false;
                                     k++;
                                 }
                         }
 
+                    if (k == 0)
+                        tmp = false;
+                }
+                tmp = true;
+                while (tmp)
+                {
+                    int k = 0;
+                    for (int i = 0; i < 3; i++)
+                        for (int j = 0; j < 4; j++)
+                        {
+                            if (buttons[i, j] != null && buttons[i + 1, j] == null)
+                            {
+                                buttons[i + 1, j] = buttons[i, j];
+                                buttons[i, j] = null;
+                                k++;
+                            }
+                        }
                     if (k == 0)
                         tmp = false;
                 }
@@ -179,12 +320,26 @@ namespace WpfApp2
                             {
                                 buttons[i - 1, j] = buttons[i, j];
                                 buttons[i, j] = null;
+                                k++;
                             }
-                            else if (buttons[i, j] != null && buttons[i - 1, j] != null)
-                                if (buttons[i, j].Content == buttons[i - 1, j].Content)
+                        }
+                    if (k == 0)
+                        tmp = false;
+                }
+                tmp = true;
+                while (tmp)
+                {
+                    int k = 0;
+                    for (int i = 0; i < 3; i++)
+                        for (int j = 0; j < 4; j++)
+                        {
+                            if ((buttons[i, j] != null && buttons[i + 1, j] != null) && key[i, j] == true && key[i + 1, j] == true)
+                                if (buttons[i, j].Content.ToString() == buttons[i + 1, j].Content.ToString())
                                 {
-                                    buttons[i, j].Content = Convert.ToString(Convert.ToInt32(buttons[i, j].Content) * 2);
-                                    buttons[i - 1, j] = null;
+                                    buttons[i + 1, j].Content = Convert.ToString(Convert.ToInt32(buttons[i, j].Content.ToString()) * 2);
+                                    score += Convert.ToInt32(buttons[i + 1, j].Content);
+                                    buttons[i, j] = null;
+                                    key[i + 1, j] = false;
                                     k++;
                                 }
                         }
@@ -192,12 +347,41 @@ namespace WpfApp2
                     if (k == 0)
                         tmp = false;
                 }
+                tmp = true;
+                while (tmp)
+                {
+                    int k = 0;
+                    for (int i = 3; i > 0; i--)
+                        for (int j = 0; j < 4; j++)
+                        {
+                            if (buttons[i, j] != null && buttons[i - 1, j] == null)
+                            {
+                                buttons[i - 1, j] = buttons[i, j];
+                                buttons[i, j] = null;
+                                k++;
+                            }
+                        }
+                    if (k == 0)
+                        tmp = false;
+                }
             }
 
-            Create();
+            bool tps = false;
+            for (int _i = 0; _i < 4; _i++)
+                for (int _j = 0; _j < 4; _j++)
+                {
+                    if (buttons[_i, _j] == null)
+                        tps = true;
+                }
+            if (tps)
+                Create();
+            else
+                if (Check() == false)
+                    MessageBox.Show("End game");
             user_grid.Children.Clear();
             Border();
             Button();
+            score_box.Text = $"Score\n{score}";
         }
     }
 }
